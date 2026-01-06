@@ -268,9 +268,8 @@
                 document.getElementById('urlOutput').value = "ERROR: INVALID URL FORMAT";
             }
         }
-
         // ==========================================
-        // TOOL 2 LOGIC: TOC GENERATOR
+        // TOOL 2 LOGIC: TOC GENERATOR (UPDATED)
         // ==========================================
         function runTocGen() {
             const input = document.getElementById('tocInput').value;
@@ -288,26 +287,24 @@
                 if (match) {
                     let raw = match[1].trim();
 
+                    // --- FIX 1: EXCLUDE EXISTING TOC HEADER ---
+                    // If the header is "Contents" (case-insensitive), skip it.
+                    if (raw.toLowerCase() === 'contents') {
+                        return; 
+                    }
+                    // ------------------------------------------
+
                     // Remove prefix (non-word chars, but keeps Chinese/Unicode words)
-                    // Matches Python: re.sub(r'''^[^\w\[]+\s*''', '', raw)
-                    // Using Unicode aware regex to mimic \w in Python 3
                     let display = raw.replace(/^[^\w\[\u00C0-\uFFFF]+/u, '').trim();
 
                     // Generate Slug
-                    // Python logic: 
-                    // 1. lower()
-                    // 2. '&' -> '-'
-                    // 3. remove non alphanumeric (except space and -)
-                    // 4. space -> '-'
-                    // 5. -{3,} -> --
-                    
                     let t = display.toLowerCase();
                     t = t.replace(/&/g, '-');
                     t = t.replace(/[^0-9a-z\s-]/g, ''); // Remove strange symbols
                     t = t.replace(/\s+/g, '-');         // Spaces to hyphens
                     t = t.replace(/-{3,}/g, '--');      // 3+ hyphens to 2
 
-                    // Handle if display starts with '[' (link logic from python script)
+                    // Handle if display starts with '['
                     if (display.trim().startsWith('[')) {
                         t = '-' + t;
                     }
@@ -321,7 +318,10 @@
             if (output.length === 0) {
                 document.getElementById('tocOutput').value = "NO '###' HEADERS FOUND.";
             } else {
-                document.getElementById('tocOutput').value = output.join('\n');
+                // --- FIX 2: ADD HEADER AND DOUBLE NEWLINE ---
+                const headerTitle = "### Contents\n\n";
+                document.getElementById('tocOutput').value = headerTitle + output.join('\n');
+                // --------------------------------------------
             }
         }
     </script>
