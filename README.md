@@ -42,7 +42,7 @@ Generic tools (like VS Code plugins) use generic logic. This app is customized f
 
 This repository is designed to be a template. The architecture is intentionally simple (single `index.html` with vanilla JS/CSS).
 
-**I highly encourage you to fork this repository and make it your own!**
+**Welcome to fork this repository and make it your own!**
 
 ### How to add your own tool:
 1. **Fork** this repo.
