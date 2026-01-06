@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Utility Toolkit</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --sidebar-bg: #1a1a1a;
+            --text-color: #333;
+            --accent-color: #2563eb;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            flex-shrink: 0;
+        }
+
+        #sidebar h2 {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            padding: 15px 25px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .nav-btn.active {
+            background-color: #252525;
+            color: #fff;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        /* Main Content Area */
+        #main {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .tool-section {
+            display: none; /* Hidden by default */
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tool-section.active {
+            display: block;
+        }
+
+        /* Tool Card Styling */
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button.primary-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+
+        button.primary-btn:hover { background-color: #1d4ed8; }
+
+        button.copy-btn {
+            background-color: #4b5563;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button.copy-btn:hover { background-color: #374151; }
+
+        .output-area {
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; padding: 10px 0; flex-direction: row; overflow-x: auto; }
+            #sidebar h2 { display: none; }
+            .nav-btn { padding: 10px 15px; font-size: 0.9rem; white-space: nowrap; }
+            #main { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar">
+        <h2>Toolbox</h2>
+        <button class="nav-btn active" onclick="switchTool('url-decoder')">URL Readable</button>
+        <button class="nav-btn" onclick="switchTool('toc-generator')">TOC Generator</button>
+        <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
+    </div>
+
+    <!-- Main Content -->
+    <div id="main">
+
+        <!-- TOOL 1: URL DECODER -->
+        <div id="url-decoder" class="tool-section active">
+            <div class="card">
+                <h1>URL to Readable Format</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Decodes percent-encoded URLs (e.g., %E4%BD%A0) back into readable Unicode characters.
+                </p>
+                
+                <label>Input Encoded URL:</label>
+                <textarea id="urlInput" placeholder="Paste URL here..."></textarea>
+                
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="runUrlDecode()">Convert</button>
+                    <button class="copy-btn" onclick="copyOutput('urlOutput')">Copy Result</button>
+                </div>
+
+                <label>Result:</label>
+                <textarea id="urlOutput" class="output-area" readonly></textarea>
+            </div>
+        </div>
+
+        <!-- TOOL 2: TOC GENERATOR -->
+        <div id="toc-generator" class="tool-section">
+            <div class="card">
+                <h1>Markdown TOC Generator</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Extracts lines starting with "###", slugifies them, and creates a formatted Table of Contents.
+                </p>
+
+                <label>Input Markdown Source:</label>
+                <textarea id="tocInput" placeholder="Paste Markdown content here..."></textarea>
+                
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="runTocGen()">Generate TOC</button>
+                    <button class="copy-btn" onclick="copyOutput('tocOutput')">Copy Result</button>
+                </div>
+
+                <label>Table of Contents:</label>
+                <textarea id="tocOutput" class="output-area" readonly></textarea>
+            </div>
+        </div>
+
+        <!-- ADD NEW TOOL SECTIONS HERE IN FUTURE -->
+
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        function switchTool(toolId) {
+            // Hide all tools
+            document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+            // Show selected tool
+            document.getElementById(toolId).classList.add('active');
+            
+            // Update sidebar buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('onclick').includes(toolId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // --- Helper: Copy to Clipboard ---
+        function copyOutput(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+
+        // ==========================================
+        // TOOL 1 LOGIC: URL DECODER
+        // ==========================================
+        function runUrlDecode() {
+            const input = document.getElementById('urlInput').value.trim();
+            if (!input) return;
+
+            try {
+                // JavaScript's decodeURI handles the UTF-8 percent decoding automatically.
+                // It's the equivalent of Python's unquote().
+                const decoded = decodeURI(input);
+                document.getElementById('urlOutput').value = decoded;
+            } catch (e) {
+                document.getElementById('urlOutput').value = "ERROR: INVALID URL FORMAT";
+            }
+        }
+
+        // ==========================================
+        // TOOL 2 LOGIC: TOC GENERATOR
+        // ==========================================
+        function runTocGen() {
+            const input = document.getElementById('tocInput').value;
+            if (!input) return;
+
+            const lines = input.split('\n');
+            let output = [];
+            let i = 1;
+
+            // Regex to find lines starting with ###
+            const headerRegex = /^\s*###\s*(.+)$/;
+
+            lines.forEach(line => {
+                const match = line.match(headerRegex);
+                if (match) {
+                    let raw = match[1].trim();
+
+                    // Remove prefix (non-word chars, but keeps Chinese/Unicode words)
+                    // Matches Python: re.sub(r'''^[^\w\[]+\s*''', '', raw)
+                    // Using Unicode aware regex to mimic \w in Python 3
+                    let display = raw.replace(/^[^\w\[\u00C0-\uFFFF]+/u, '').trim();
+
+                    // Generate Slug
+                    // Python logic: 
+                    // 1. lower()
+                    // 2. '&' -> '-'
+                    // 3. remove non alphanumeric (except space and -)
+                    // 4. space -> '-'
+                    // 5. -{3,} -> --
+                    
+                    let t = display.toLowerCase();
+                    t = t.replace(/&/g, '-');
+                    t = t.replace(/[^0-9a-z\s-]/g, ''); // Remove strange symbols
+                    t = t.replace(/\s+/g, '-');         // Spaces to hyphens
+                    t = t.replace(/-{3,}/g, '--');      // 3+ hyphens to 2
+
+                    // Handle if display starts with '[' (link logic from python script)
+                    if (display.trim().startsWith('[')) {
+                        t = '-' + t;
+                    }
+
+                    // Format: "1. [Display](#slug)"
+                    output.push(`${i}. [${display}](#${t})  `);
+                    i++;
+                }
+            });
+
+            if (output.length === 0) {
+                document.getElementById('tocOutput').value = "NO '###' HEADERS FOUND.";
+            } else {
+                document.getElementById('tocOutput').value = output.join('\n');
+            }
+        }
+    </script>
+</body>
+</html>
