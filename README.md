@@ -3,7 +3,6 @@
 A lightweight, single-page web application hosted on GitHub Pages. This toolkit replaces the need to open heavy IDEs (like Spyder/VS Code) or risk privacy by using ad-ridden online converters. It performs text processing tasks instantly within the browser.
 
 **👉 [Click here to use the App](https://sparktsang.github.io/my-utils/)**  
-*(Replace the link above after you enable GitHub Pages)*
 
 ---
 
