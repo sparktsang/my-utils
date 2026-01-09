@@ -20,7 +20,7 @@ Automatically generates a Table of Contents for Markdown files based on `###` he
 - **Auto-Formatting:** Automatically prepends `### Contents` with correct line spacing.
 - **Logic:** Handles Chinese/Unicode characters and complex symbols perfectly when generating anchor links (slugs).
 
-### 3. AI Studio JSON Converter (New!)
+### 3. AI Studio JSON Converter
 A specialized tool for extracting conversation history from **Google AI Studio** export files.
 - **The Problem:** AI Studio exports are complex JSON files mixed with internal "thought processes" and metadata. They are unreadable to humans, and surprisingly, **no existing online tool** handles this conversion simply.
 - **The Solution:** Just **drag and drop** the raw JSON file (even without a file extension). The app instantly parses the structure, filters out hidden internal thoughts (`isThought: true`), and outputs a clean, readable Markdown conversation log.
