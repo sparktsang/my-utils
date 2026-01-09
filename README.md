@@ -3,6 +3,7 @@
 A lightweight, single-page web application hosted on GitHub Pages. This toolkit replaces the need to open heavy IDEs (like Spyder/VS Code) or risk privacy by using ad-ridden online converters. It performs text processing tasks instantly within the browser.
 
 **👉 [Click here to use the App](https://sparktsang.github.io/my-utils/)**  
+*(Replace the link above after you enable GitHub Pages)*
 
 ---
 
@@ -19,6 +20,12 @@ Automatically generates a Table of Contents for Markdown files based on `###` he
 - **Smart Filtering:** It intelligently detects if a "Contents" section already exists and ignores it, preventing recursive duplication.
 - **Auto-Formatting:** Automatically prepends `### Contents` with correct line spacing.
 - **Logic:** Handles Chinese/Unicode characters and complex symbols perfectly when generating anchor links (slugs).
+
+### 3. AI Studio JSON Converter (New!)
+A specialized tool for extracting conversation history from **Google AI Studio** export files.
+- **The Problem:** AI Studio exports are complex JSON files mixed with internal "thought processes" and metadata. They are unreadable to humans, and surprisingly, **no existing online tool** handles this conversion simply.
+- **The Solution:** Just **drag and drop** the raw JSON file (even without a file extension). The app instantly parses the structure, filters out hidden internal thoughts (`isThought: true`), and outputs a clean, readable Markdown conversation log.
+- **Logic:** Implements the exact extraction logic used in Python data pipelines but runs instantly in your browser.
 
 ---
 
@@ -42,7 +49,7 @@ Generic tools (like VS Code plugins) use generic logic. This app is customized f
 
 This repository is designed to be a template. The architecture is intentionally simple (single `index.html` with vanilla JS/CSS).
 
-**Welcome to fork this repository and make it your own!**
+**I highly encourage you to fork this repository and make it your own!**
 
 ### How to add your own tool:
 1. **Fork** this repo.
