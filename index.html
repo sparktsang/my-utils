@@ -164,6 +164,30 @@
             .nav-btn { padding: 10px 15px; font-size: 0.9rem; white-space: nowrap; }
             #main { padding: 20px; }
         }
+        
+        /* Drag and Drop Zone Styling */
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            color: #888;
+            background-color: #fafafa;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent-color);
+            background-color: #eff6ff;
+            color: var(--accent-color);
+        }
+        
+        .drop-zone p {
+            pointer-events: none; /* Prevents text selection while dragging */
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
@@ -173,6 +197,7 @@
         <h2>Toolbox</h2>
         <button class="nav-btn active" onclick="switchTool('url-decoder')">URL Readable</button>
         <button class="nav-btn" onclick="switchTool('toc-generator')">TOC Generator</button>
+        <button class="nav-btn" onclick="switchTool('ai-studio-converter')">AI Studio Converter</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -218,6 +243,29 @@
 
                 <label>Table of Contents:</label>
                 <textarea id="tocOutput" class="output-area" readonly></textarea>
+            </div>
+        </div>
+        
+        <!-- TOOL 3: AI STUDIO CONVERTER -->
+        <div id="ai-studio-converter" class="tool-section">
+            <div class="card">
+                <h1>AI Studio JSON to Markdown</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Drag and drop a Google AI Studio JSON export file here. It extracts the conversation text, filters out internal thoughts, and formats it as Markdown.
+                </p>
+        
+                <!-- Drag and Drop Area -->
+                <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+                    <p>📂 Drop JSON file here<br><span style="font-size:0.9rem">(or click to browse)</span></p>
+                    <input type="file" id="fileInput" style="display:none" onchange="handleFiles(this.files)">
+                </div>
+        
+                <div class="action-bar">
+                    <button class="copy-btn" style="width:100%" onclick="copyOutput('aiOutput')">Copy Result</button>
+                </div>
+        
+                <label>Converted Conversation:</label>
+                <textarea id="aiOutput" class="output-area" style="height: 400px;" readonly></textarea>
             </div>
         </div>
 
@@ -323,6 +371,83 @@
                 document.getElementById('tocOutput').value = headerTitle + output.join('\n');
                 // --------------------------------------------
             }
+        }
+        
+        // ==========================================
+        // TOOL 3 LOGIC: AI STUDIO CONVERTER
+        // ==========================================
+        
+        // Setup Drag & Drop Listeners
+        const dropZone = document.getElementById('dropZone');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            const reader = new FileReader();
+        
+            reader.onload = function(e) {
+                try {
+                    const jsonStr = e.target.result;
+                    const data = JSON.parse(jsonStr);
+                    
+                    // Logic ported from Python: data['chunkedPrompt']['chunks']
+                    if (!data.chunkedPrompt || !data.chunkedPrompt.chunks) {
+                        throw new Error("Invalid format: 'chunkedPrompt' not found.");
+                    }
+        
+                    const chunks = data.chunkedPrompt.chunks;
+                    let dialogueParts = [];
+                    const separator = "\n\n====================\n\n";
+        
+                    chunks.forEach(chunk => {
+                        // Logic: if not chunk.get('isThought', False)
+                        if (!chunk.isThought) {
+                            // Logic: chunk.get('text', '')
+                            let text = chunk.text || "";
+                            if (text) {
+                                dialogueParts.push(text);
+                            }
+                        }
+                    });
+        
+                    if (dialogueParts.length === 0) {
+                        document.getElementById('aiOutput').value = "No conversation text found (might be all thoughts or empty).";
+                    } else {
+                        document.getElementById('aiOutput').value = dialogueParts.join(separator);
+                    }
+        
+                } catch (err) {
+                    document.getElementById('aiOutput').value = "ERROR PARSING FILE: " + err.message;
+                }
+            };
+        
+            reader.readAsText(file);
         }
     </script>
 </body>
