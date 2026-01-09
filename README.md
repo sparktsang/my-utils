@@ -22,8 +22,8 @@ Automatically generates a Table of Contents for Markdown files based on `###` he
 
 ### 3. AI Studio JSON Converter
 A specialized tool for extracting conversation history from **Google AI Studio** export files.
-- **The Problem:** AI Studio exports are complex JSON files mixed with internal "thought processes" and metadata. They are unreadable to humans, and surprisingly, **no existing online tool** handles this conversion simply.
-- **The Solution:** Just **drag and drop** the raw JSON file (even without a file extension). The app instantly parses the structure, filters out hidden internal thoughts (`isThought: true`), and outputs a clean, readable Markdown conversation log.
+- **The Problem:** AI Studio exports are complex JSON files mixed with metadata. They are unreadable to humans, and surprisingly, **no existing online tool** handles this conversion simply.
+- **The Solution:** Just drop the raw JSON file (even without a file extension). The app instantly parses the structure and outputs a clean, readable Markdown conversation log.
 - **Logic:** Implements the exact extraction logic used in Python data pipelines but runs instantly in your browser.
 
 ---
