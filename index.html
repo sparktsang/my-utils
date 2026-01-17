@@ -310,7 +310,8 @@
             try {
                 // JavaScript's decodeURI handles the UTF-8 percent decoding automatically.
                 // It's the equivalent of Python's unquote().
-                const decoded = decodeURI(input);
+                // Decode everything first, then re-encode spaces to %20 so the link remains valid
+                const decoded = decodeURI(input).replace(/ /g, '%20');
                 document.getElementById('urlOutput').value = decoded;
             } catch (e) {
                 document.getElementById('urlOutput').value = "ERROR: INVALID URL FORMAT";
