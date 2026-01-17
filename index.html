@@ -291,12 +291,28 @@
         }
 
         // --- Helper: Copy to Clipboard ---
+        // --- Helper: Copy to Clipboard (Updated) ---
         function copyOutput(elementId) {
             const copyText = document.getElementById(elementId);
+            
+            // Find the button that triggered this function
+            // We use event.target to identify which button was clicked
+            const btn = event.target;
+            const originalText = btn.innerText;
+
             copyText.select();
             copyText.setSelectionRange(0, 99999); 
+            
             navigator.clipboard.writeText(copyText.value).then(() => {
-                alert("Copied to clipboard!");
+                // Change button text instead of alerting
+                btn.innerText = "Copied!";
+                btn.style.backgroundColor = "#10b981"; // Optional: Green color for success
+
+                // Revert back after 1 second
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; // Revert color
+                }, 1000);
             });
         }
 
