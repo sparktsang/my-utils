@@ -364,7 +364,8 @@
                     // Generate Slug
                     let t = display.toLowerCase();
                     t = t.replace(/&/g, '-');
-                    t = t.replace(/[^0-9a-z\s-]/g, ''); // Remove strange symbols
+                    // Change regex to allow Unicode letters (like ö, é, 中文) using \p{L} and the 'u' flag
+                    t = t.replace(/[^\p{L}\p{N}\s-]/gu, '');
                     t = t.replace(/\s+/g, '-');         // Spaces to hyphens
                     t = t.replace(/-{3,}/g, '--');      // 3+ hyphens to 2
 
