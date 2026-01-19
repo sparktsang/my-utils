@@ -188,6 +188,67 @@
             pointer-events: none; /* Prevents text selection while dragging */
             font-size: 1.1rem;
         }
+        /* Mermaid Tool Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+        
+        .entity-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            min-height: 50px;
+        }
+        
+        .entity-tag {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .entity-tag.person { border-color: #f9f; background: #fff0ff; }
+        .entity-tag.company { border-color: #bbf; background: #f0f0ff; }
+        .entity-tag.crime { border-color: #ff4d4d; background: #ffe0e0; color: #b30000; }
+        .entity-tag.winner { border-color: #ff0000; background: #ff9999; }
+        
+        .remove-tag {
+            cursor: pointer;
+            color: #999;
+            font-weight: bold;
+        }
+        .remove-tag:hover { color: #f00; }
+        
+        .rel-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
@@ -198,6 +259,7 @@
         <button class="nav-btn active" onclick="switchTool('url-decoder')">URL Readable</button>
         <button class="nav-btn" onclick="switchTool('toc-generator')">TOC Generator</button>
         <button class="nav-btn" onclick="switchTool('ai-studio-converter')">AI Studio Converter</button>
+        <button class="nav-btn" onclick="switchTool('mermaid-generator')">Relationship Mapper</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -266,6 +328,68 @@
         
                 <label>Converted Conversation:</label>
                 <textarea id="aiOutput" class="output-area" style="height: 400px;" readonly></textarea>
+            </div>
+        </div>
+        
+        <!-- TOOL 4: MERMAID GENERATOR -->
+        <div id="mermaid-generator" class="tool-section">
+            <div class="card">
+                <h1>Relationship Graph Generator</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Intuitive tool to generate complex Mermaid.js code. First, define your entities (People/Companies), then link them together.
+                </p>
+        
+                <!-- Step 1: Define Entities -->
+                <h3 style="border-bottom:1px solid #eee; padding-bottom:10px;">1. Add Entities (People / Companies)</h3>
+                <div class="form-grid">
+                    <div>
+                        <label>Name (e.g. 陳嘉文)</label>
+                        <input type="text" id="entName" placeholder="Display Name">
+                    </div>
+                    <div>
+                        <label>Type</label>
+                        <select id="entType">
+                            <option value="person">Person (Pink)</option>
+                            <option value="company">Company (Blue)</option>
+                            <option value="crime">Crime/Case (Red)</option>
+                            <option value="winner">Winner (Red Border)</option>
+                            <option value="inspectBidder">Inspect Bidder (Green)</option>
+                            <option value="consultBidder">Consult Bidder (Orange)</option>
+                            <option value="constBidder">Const Bidder (Purple)</option>
+                            <option value="laguna">Location (Blue)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Group (Optional)</label>
+                        <input type="text" id="entGroup" placeholder="e.g. Chan_Family" list="groupSuggestions">
+                        <datalist id="groupSuggestions">
+                            <!-- Auto-populated via JS -->
+                        </datalist>
+                    </div>
+                    <button class="primary-btn" onclick="addEntity()">Add</button>
+                </div>
+        
+                <div id="entityList" class="entity-list">
+                    <span style="color:#999; padding:10px;">No entities added yet.</span>
+                </div>
+        
+                <!-- Step 2: Define Relationships -->
+                <h3 style="border-bottom:1px solid #eee; padding-bottom:10px; margin-top:30px;">2. Define Relationships</h3>
+                <div id="relContainer">
+                    <!-- Relationship rows go here -->
+                </div>
+                <button class="nav-btn" style="border:1px dashed #ccc; width:100%; text-align:center; margin-bottom:20px;" onclick="addRelRow()">+ Add Relationship</button>
+        
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="generateMermaid()">Generate Graph Code</button>
+                    <button class="copy-btn" onclick="copyOutput('mermaidOutput')">Copy Code</button>
+                </div>
+        
+                <textarea id="mermaidOutput" class="output-area" style="height: 300px;" readonly placeholder="Mermaid code will appear here..."></textarea>
+                
+                <p style="text-align:right;">
+                    <a href="https://mermaid.live/" target="_blank" style="color:var(--accent-color); text-decoration:none;">Open Mermaid Live Editor &rarr;</a>
+                </p>
             </div>
         </div>
 
@@ -465,6 +589,224 @@
             };
         
             reader.readAsText(file);
+        }
+        
+        // ==========================================
+        // TOOL 4: MERMAID GENERATOR LOGIC
+        // ==========================================
+        
+        let entities = []; // Stores {id, name, type, group}
+        let relations = []; // Stores {from, to, label}
+        let groupSet = new Set(); // Stores unique group names
+        
+        function addEntity() {
+            const nameInput = document.getElementById('entName');
+            const typeInput = document.getElementById('entType');
+            const groupInput = document.getElementById('entGroup');
+        
+            const name = nameInput.value.trim();
+            const type = typeInput.value;
+            let group = groupInput.value.trim();
+        
+            if (!name) return alert("Please enter a name.");
+        
+            // Auto-generate ID (e.g. ChanKaMan from 陳嘉文 is hard, so we use a safe random ID or simple hash)
+            // For simplicity, we just use 'Node_' + timestamp + random
+            const id = 'Node_' + Math.floor(Math.random() * 10000);
+        
+            // Default group if empty
+            if (!group) group = "Ungrouped";
+            
+            // Add to data
+            entities.push({ id, name, type, group });
+            groupSet.add(group);
+            
+            // Update UI
+            renderEntityList();
+            updateGroupDatalist();
+            
+            // Clear inputs
+            nameInput.value = '';
+            nameInput.focus();
+        }
+        
+        function renderEntityList() {
+            const container = document.getElementById('entityList');
+            container.innerHTML = '';
+        
+            if (entities.length === 0) {
+                container.innerHTML = '<span style="color:#999; padding:10px;">No entities added yet.</span>';
+                return;
+            }
+        
+            entities.forEach((ent, index) => {
+                const tag = document.createElement('div');
+                tag.className = `entity-tag ${ent.type}`;
+                tag.innerHTML = `
+                    <span>${ent.name} <small>(${ent.group})</small></span>
+                    <span class="remove-tag" onclick="removeEntity(${index})">&times;</span>
+                `;
+                container.appendChild(tag);
+            });
+        
+            // Also update relationship dropdowns
+            renderRelRows(); 
+        }
+        
+        function removeEntity(index) {
+            entities.splice(index, 1);
+            renderEntityList();
+        }
+        
+        function updateGroupDatalist() {
+            const dl = document.getElementById('groupSuggestions');
+            dl.innerHTML = '';
+            groupSet.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                dl.appendChild(opt);
+            });
+        }
+        
+        // Relationship UI Management
+        let relRowCount = 0;
+        
+        function addRelRow() {
+            const container = document.getElementById('relContainer');
+            const rowId = `rel-row-${relRowCount++}`;
+            
+            const div = document.createElement('div');
+            div.className = 'rel-row';
+            div.id = rowId;
+            
+            // From Select
+            const selFrom = document.createElement('select');
+            selFrom.className = 'rel-from';
+            
+            // Relation Label
+            const inputRel = document.createElement('input');
+            inputRel.type = 'text';
+            inputRel.placeholder = 'Label (e.g. 董事)';
+            inputRel.className = 'rel-label';
+            inputRel.style.flexGrow = '0.5';
+            
+            // To Select
+            const selTo = document.createElement('select');
+            selTo.className = 'rel-to';
+        
+            // Remove Button
+            const btnRem = document.createElement('button');
+            btnRem.innerHTML = '&times;';
+            btnRem.style.border = 'none';
+            btnRem.style.background = 'none';
+            btnRem.style.color = '#f00';
+            btnRem.style.cursor = 'pointer';
+            btnRem.onclick = function() { div.remove(); };
+        
+            div.appendChild(selFrom);
+            div.appendChild(document.createTextNode(' --> '));
+            div.appendChild(inputRel);
+            div.appendChild(document.createTextNode(' --> '));
+            div.appendChild(selTo);
+            div.appendChild(btnRem);
+        
+            container.appendChild(div);
+            
+            // Populate options
+            populateSelect(selFrom);
+            populateSelect(selTo);
+        }
+        
+        function populateSelect(selectElement) {
+            // Save current selection
+            const currentVal = selectElement.value;
+            
+            selectElement.innerHTML = '';
+            const def = document.createElement('option');
+            def.value = '';
+            def.text = '-- Select --';
+            selectElement.appendChild(def);
+        
+            entities.forEach(ent => {
+                const opt = document.createElement('option');
+                opt.value = ent.id;
+                opt.text = ent.name;
+                selectElement.appendChild(opt);
+            });
+        
+            // Restore selection if still valid
+            if (currentVal) selectElement.value = currentVal;
+        }
+        
+        // Re-populate all dropdowns when entities change
+        function renderRelRows() {
+            document.querySelectorAll('.rel-from, .rel-to').forEach(sel => {
+                populateSelect(sel);
+            });
+        }
+        
+        // Core Generation Logic
+        function generateMermaid() {
+            if (entities.length === 0) return alert("Add some entities first!");
+        
+            let code = `graph TB\n`;
+            
+            // 1. Definitions
+            code += `    %% Styles\n`;
+            code += `    classDef person fill:#f9f,stroke:#333,stroke-width:1px;\n`;
+            code += `    classDef company fill:#bbf,stroke:#333,stroke-width:1px;\n`;
+            code += `    classDef crime fill:#ff4d4d,stroke:#b30000,stroke-width:4px,color:white;\n`;
+            code += `    classDef winner fill:#ff9999,stroke:#ff0000,stroke-width:4px;\n`;
+            code += `    classDef constBidder fill:#e6ccff,stroke:#9900cc,stroke-width:4px,stroke-dasharray: 5 5;\n`;
+            code += `    classDef consultBidder fill:#ffe0cc,stroke:#cc5200,stroke-width:4px,stroke-dasharray: 5 5;\n`;
+            code += `    classDef inspectBidder fill:#ccffcc,stroke:#006600,stroke-width:4px,stroke-dasharray: 5 5;\n`;
+            code += `    classDef laguna fill:#00ffff,stroke:#0077be,stroke-width:3px;\n\n`;
+        
+            // 2. Grouping
+            // We need to group entities by their 'group' property
+            const grouped = {};
+            entities.forEach(ent => {
+                if (!grouped[ent.group]) grouped[ent.group] = [];
+                grouped[ent.group].push(ent);
+            });
+        
+            for (const [groupName, groupEntities] of Object.entries(grouped)) {
+                if (groupName === 'Ungrouped') {
+                    // Render ungrouped nodes at the top level
+                    groupEntities.forEach(ent => {
+                        code += `    ${ent.id}(${ent.name}):::${ent.type}\n`;
+                    });
+                } else {
+                    // Render subgraph
+                    // Sanitize group ID (remove spaces)
+                    const groupId = 'Grp_' + groupName.replace(/\s+/g, '_');
+                    code += `    subgraph ${groupId} [${groupName}]\n        direction TB\n`;
+                    groupEntities.forEach(ent => {
+                        code += `        ${ent.id}(${ent.name}):::${ent.type}\n`;
+                    });
+                    code += `    end\n`;
+                }
+            }
+            
+            code += `\n    %% Relationships\n`;
+        
+            // 3. Relationships
+            const rows = document.querySelectorAll('.rel-row');
+            rows.forEach(row => {
+                const from = row.querySelector('.rel-from').value;
+                const to = row.querySelector('.rel-to').value;
+                const label = row.querySelector('.rel-label').value.trim();
+        
+                if (from && to) {
+                    if (label) {
+                        code += `    ${from} -->|${label}| ${to}\n`;
+                    } else {
+                        code += `    ${from} --> ${to}\n`;
+                    }
+                }
+            });
+        
+            document.getElementById('mermaidOutput').value = code;
         }
     </script>
 </body>
