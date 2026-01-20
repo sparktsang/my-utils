@@ -26,6 +26,15 @@ A specialized tool for extracting conversation history from **Google AI Studio**
 - **The Solution:** Just drop the raw JSON file (even without a file extension). The app instantly parses the structure and outputs a clean, readable Markdown conversation log.
 - **Logic:** Implements the exact extraction logic used in Python data pipelines but runs instantly in your browser.
 
+### 4. Relationship Mapper (Mermaid Generator)
+An intuitive, form-based builder for creating complex **Mermaid.js** diagrams without writing a single line of code.
+- **The Problem:** Creating relationship graphs (like corporate structures or family trees) in Mermaid requires writing repetitive, error-prone syntax. Managing node IDs and grouping entities manually is tedious.
+- **The Solution:** A visual interface where you define **Entities** (People, Companies, Events) and then simply link them together using dropdown menus. It automatically handles unique IDs, grouping (Subgraphs), and styling logic.
+- **Features:** 
+  - **Smart ID System:** Auto-generates unique IDs (`N1`, `N2`...) or accepts custom ones.
+  - **Visual Styling:** Easily assign shapes (Round, Square, Diamond) and color tags (Red, Green, Purple) to categorize entities (e.g., highlighting "Winners" or "Suspects").
+  - **Instant Export:** Generates clean, ready-to-paste Mermaid code for documentation or visualization tools.
+
 ---
 
 ## 🚀 Why Build This? (The Philosophy)
