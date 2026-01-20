@@ -331,42 +331,56 @@
             </div>
         </div>
         
-        <!-- TOOL 4: MERMAID GENERATOR -->
+        <!-- TOOL 4: MERMAID GENERATOR (UPDATED) -->
         <div id="mermaid-generator" class="tool-section">
             <div class="card">
                 <h1>Relationship Graph Generator</h1>
                 <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
-                    Intuitive tool to generate complex Mermaid.js code. First, define your entities (People/Companies), then link them together.
+                    Intuitive tool to generate complex Mermaid.js code. Define entities, assign colors, and link them.
                 </p>
         
                 <!-- Step 1: Define Entities -->
-                <h3 style="border-bottom:1px solid #eee; padding-bottom:10px;">1. Add Entities (People / Companies)</h3>
-                <div class="form-grid">
+                <h3 style="border-bottom:1px solid #eee; padding-bottom:10px;">1. Add Entities</h3>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr auto;">
+                    <!-- ID (Optional) -->
                     <div>
-                        <label>Name (e.g. 陳嘉文)</label>
-                        <input type="text" id="entName" placeholder="Display Name">
+                        <label>ID (Optional)</label>
+                        <input type="text" id="entId" placeholder="e.g. Chan01">
                     </div>
+                    <!-- Name -->
                     <div>
-                        <label>Type</label>
-                        <select id="entType">
-                            <option value="person">Person (Pink)</option>
-                            <option value="company">Company (Blue)</option>
-                            <option value="crime">Crime/Case (Red)</option>
-                            <option value="winner">Winner (Red Border)</option>
-                            <option value="inspectBidder">Inspect Bidder (Green)</option>
-                            <option value="consultBidder">Consult Bidder (Orange)</option>
-                            <option value="constBidder">Const Bidder (Purple)</option>
-                            <option value="laguna">Location (Blue)</option>
+                        <label>Name</label>
+                        <input type="text" id="entName" placeholder="e.g. 陳嘉文">
+                    </div>
+                    <!-- Shape/Type -->
+                    <div>
+                        <label>Shape</label>
+                        <select id="entShape">
+                            <option value="person">Person (Rounded)</option>
+                            <option value="company">Company (Square)</option>
+                            <option value="diamond">Event (Diamond)</option>
                         </select>
                     </div>
+                    <!-- Color Style -->
                     <div>
-                        <label>Group (Optional)</label>
-                        <input type="text" id="entGroup" placeholder="e.g. Chan_Family" list="groupSuggestions">
-                        <datalist id="groupSuggestions">
-                            <!-- Auto-populated via JS -->
-                        </datalist>
+                        <label>Color Style</label>
+                        <select id="entColor">
+                            <option value="default">Default (Grey/Blue)</option>
+                            <option value="red">Red (Alert/Crime)</option>
+                            <option value="green">Green (Success)</option>
+                            <option value="purple">Purple (Special)</option>
+                            <option value="orange">Orange (Warning)</option>
+                        </select>
                     </div>
-                    <button class="primary-btn" onclick="addEntity()">Add</button>
+                    <!-- Group -->
+                    <div style="grid-column: span 5; display: grid; grid-template-columns: 1fr auto; gap:10px; margin-top:10px;">
+                        <div>
+                            <label>Group (Optional)</label>
+                            <input type="text" id="entGroup" placeholder="e.g. Chan_Family" list="groupSuggestions" style="width:100%">
+                            <datalist id="groupSuggestions"></datalist>
+                        </div>
+                        <button class="primary-btn" onclick="addEntity()" style="height: 42px; align-self: end;">Add</button>
+                    </div>
                 </div>
         
                 <div id="entityList" class="entity-list">
@@ -375,9 +389,7 @@
         
                 <!-- Step 2: Define Relationships -->
                 <h3 style="border-bottom:1px solid #eee; padding-bottom:10px; margin-top:30px;">2. Define Relationships</h3>
-                <div id="relContainer">
-                    <!-- Relationship rows go here -->
-                </div>
+                <div id="relContainer"></div>
                 <button class="nav-btn" style="border:1px dashed #ccc; width:100%; text-align:center; margin-bottom:20px;" onclick="addRelRow()">+ Add Relationship</button>
         
                 <div class="action-bar">
@@ -590,44 +602,54 @@
         
             reader.readAsText(file);
         }
-        
+
         // ==========================================
         // TOOL 4: MERMAID GENERATOR LOGIC
         // ==========================================
         
-        let entities = []; // Stores {id, name, type, group}
-        let relations = []; // Stores {from, to, label}
-        let groupSet = new Set(); // Stores unique group names
+        let entities = []; 
+        let groupSet = new Set();
+        let autoIdCounter = 1; // 不重複計數器
         
         function addEntity() {
+            const idInput = document.getElementById('entId');
             const nameInput = document.getElementById('entName');
-            const typeInput = document.getElementById('entType');
+            const shapeInput = document.getElementById('entShape');
+            const colorInput = document.getElementById('entColor');
             const groupInput = document.getElementById('entGroup');
         
+            const rawId = idInput.value.trim();
             const name = nameInput.value.trim();
-            const type = typeInput.value;
+            const shape = shapeInput.value;
+            const color = colorInput.value;
             let group = groupInput.value.trim();
         
             if (!name) return alert("Please enter a name.");
         
-            // Auto-generate ID (e.g. ChanKaMan from 陳嘉文 is hard, so we use a safe random ID or simple hash)
-            // For simplicity, we just use 'Node_' + timestamp + random
-            const id = 'Node_' + Math.floor(Math.random() * 10000);
+            // ID Logic: If user provides one, use it. If not, use 'N' + counter.
+            // Ensure uniqueness if user provides ID manually.
+            let finalId = rawId;
+            if (!finalId) {
+                finalId = `N${autoIdCounter++}`;
+            } else {
+                // Check duplication
+                if (entities.some(e => e.id === finalId)) {
+                    return alert("ID already exists. Please choose another.");
+                }
+            }
         
-            // Default group if empty
             if (!group) group = "Ungrouped";
             
-            // Add to data
-            entities.push({ id, name, type, group });
+            // Store entity
+            entities.push({ id: finalId, name, shape, color, group });
             groupSet.add(group);
             
-            // Update UI
+            // Reset Inputs
+            nameInput.value = '';
+            idInput.value = '';
+            
             renderEntityList();
             updateGroupDatalist();
-            
-            // Clear inputs
-            nameInput.value = '';
-            nameInput.focus();
         }
         
         function renderEntityList() {
@@ -640,16 +662,25 @@
             }
         
             entities.forEach((ent, index) => {
+                // Visual indicator of color
+                let borderCol = '#ccc';
+                let bgCol = '#fff';
+                if (ent.color === 'red') { borderCol = '#d00'; bgCol='#fee'; }
+                if (ent.color === 'green') { borderCol = '#080'; bgCol='#efe'; }
+                if (ent.color === 'purple') { borderCol = '#808'; bgCol='#fef'; }
+                if (ent.color === 'orange') { borderCol = '#d80'; bgCol='#ff9'; }
+        
                 const tag = document.createElement('div');
-                tag.className = `entity-tag ${ent.type}`;
+                tag.className = 'entity-tag';
+                tag.style.borderColor = borderCol;
+                tag.style.backgroundColor = bgCol;
                 tag.innerHTML = `
-                    <span>${ent.name} <small>(${ent.group})</small></span>
+                    <span><b>${ent.id}</b>: ${ent.name} <small>(${ent.group})</small></span>
                     <span class="remove-tag" onclick="removeEntity(${index})">&times;</span>
                 `;
                 container.appendChild(tag);
             });
         
-            // Also update relationship dropdowns
             renderRelRows(); 
         }
         
@@ -668,38 +699,28 @@
             });
         }
         
-        // Relationship UI Management
-        let relRowCount = 0;
-        
         function addRelRow() {
             const container = document.getElementById('relContainer');
-            const rowId = `rel-row-${relRowCount++}`;
-            
             const div = document.createElement('div');
             div.className = 'rel-row';
-            div.id = rowId;
             
-            // From Select
             const selFrom = document.createElement('select');
             selFrom.className = 'rel-from';
             
-            // Relation Label
             const inputRel = document.createElement('input');
             inputRel.type = 'text';
             inputRel.placeholder = 'Label (e.g. 董事)';
             inputRel.className = 'rel-label';
             inputRel.style.flexGrow = '0.5';
             
-            // To Select
             const selTo = document.createElement('select');
             selTo.className = 'rel-to';
         
-            // Remove Button
             const btnRem = document.createElement('button');
             btnRem.innerHTML = '&times;';
+            btnRem.style.color = '#f00';
             btnRem.style.border = 'none';
             btnRem.style.background = 'none';
-            btnRem.style.color = '#f00';
             btnRem.style.cursor = 'pointer';
             btnRem.onclick = function() { div.remove(); };
         
@@ -712,16 +733,14 @@
         
             container.appendChild(div);
             
-            // Populate options
             populateSelect(selFrom);
             populateSelect(selTo);
         }
         
         function populateSelect(selectElement) {
-            // Save current selection
             const currentVal = selectElement.value;
-            
             selectElement.innerHTML = '';
+            
             const def = document.createElement('option');
             def.value = '';
             def.text = '-- Select --';
@@ -730,40 +749,33 @@
             entities.forEach(ent => {
                 const opt = document.createElement('option');
                 opt.value = ent.id;
-                opt.text = ent.name;
+                opt.text = `${ent.name} (${ent.id})`;
                 selectElement.appendChild(opt);
             });
         
-            // Restore selection if still valid
             if (currentVal) selectElement.value = currentVal;
         }
         
-        // Re-populate all dropdowns when entities change
         function renderRelRows() {
             document.querySelectorAll('.rel-from, .rel-to').forEach(sel => {
                 populateSelect(sel);
             });
         }
         
-        // Core Generation Logic
         function generateMermaid() {
             if (entities.length === 0) return alert("Add some entities first!");
         
             let code = `graph TB\n`;
             
-            // 1. Definitions
-            code += `    %% Styles\n`;
-            code += `    classDef person fill:#f9f,stroke:#333,stroke-width:1px;\n`;
-            code += `    classDef company fill:#bbf,stroke:#333,stroke-width:1px;\n`;
-            code += `    classDef crime fill:#ff4d4d,stroke:#b30000,stroke-width:4px,color:white;\n`;
-            code += `    classDef winner fill:#ff9999,stroke:#ff0000,stroke-width:4px;\n`;
-            code += `    classDef constBidder fill:#e6ccff,stroke:#9900cc,stroke-width:4px,stroke-dasharray: 5 5;\n`;
-            code += `    classDef consultBidder fill:#ffe0cc,stroke:#cc5200,stroke-width:4px,stroke-dasharray: 5 5;\n`;
-            code += `    classDef inspectBidder fill:#ccffcc,stroke:#006600,stroke-width:4px,stroke-dasharray: 5 5;\n`;
-            code += `    classDef laguna fill:#00ffff,stroke:#0077be,stroke-width:3px;\n\n`;
+            // Define Generic Styles
+            code += `    %% Styles Definitions\n`;
+            code += `    classDef defaultStyle fill:#fff,stroke:#333,stroke-width:1px;\n`;
+            code += `    classDef redStyle fill:#ffcccc,stroke:#cc0000,stroke-width:2px;\n`;
+            code += `    classDef greenStyle fill:#ccffcc,stroke:#006600,stroke-width:2px;\n`;
+            code += `    classDef purpleStyle fill:#e6ccff,stroke:#6600cc,stroke-width:2px;\n`;
+            code += `    classDef orangeStyle fill:#ffe0cc,stroke:#cc6600,stroke-width:2px;\n\n`;
         
-            // 2. Grouping
-            // We need to group entities by their 'group' property
+            // Grouping Logic
             const grouped = {};
             entities.forEach(ent => {
                 if (!grouped[ent.group]) grouped[ent.group] = [];
@@ -772,25 +784,20 @@
         
             for (const [groupName, groupEntities] of Object.entries(grouped)) {
                 if (groupName === 'Ungrouped') {
-                    // Render ungrouped nodes at the top level
                     groupEntities.forEach(ent => {
-                        code += `    ${ent.id}(${ent.name}):::${ent.type}\n`;
+                        code += renderNodeLine(ent);
                     });
                 } else {
-                    // Render subgraph
-                    // Sanitize group ID (remove spaces)
-                    const groupId = 'Grp_' + groupName.replace(/\s+/g, '_');
+                    const groupId = 'Grp_' + groupName.replace(/[^a-zA-Z0-9]/g, '_');
                     code += `    subgraph ${groupId} [${groupName}]\n        direction TB\n`;
                     groupEntities.forEach(ent => {
-                        code += `        ${ent.id}(${ent.name}):::${ent.type}\n`;
+                        code += `        ${renderNodeLine(ent)}`;
                     });
                     code += `    end\n`;
                 }
             }
             
             code += `\n    %% Relationships\n`;
-        
-            // 3. Relationships
             const rows = document.querySelectorAll('.rel-row');
             rows.forEach(row => {
                 const from = row.querySelector('.rel-from').value;
@@ -807,6 +814,22 @@
             });
         
             document.getElementById('mermaidOutput').value = code;
+        }
+        
+        function renderNodeLine(ent) {
+            // Determine Brackets based on Shape
+            let start = '(', end = ')'; // Person (Default Round)
+            if (ent.shape === 'company') { start = '['; end = ']'; } // Square
+            if (ent.shape === 'diamond') { start = '{'; end = '}'; } // Diamond
+        
+            // Determine Style Class
+            let styleClass = 'defaultStyle';
+            if (ent.color === 'red') styleClass = 'redStyle';
+            if (ent.color === 'green') styleClass = 'greenStyle';
+            if (ent.color === 'purple') styleClass = 'purpleStyle';
+            if (ent.color === 'orange') styleClass = 'orangeStyle';
+        
+            return `${ent.id}${start}${ent.name}${end}:::${styleClass}\n`;
         }
     </script>
 </body>
