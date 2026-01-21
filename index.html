@@ -832,5 +832,54 @@
             return `${ent.id}${start}${ent.name}${end}:::${styleClass}\n`;
         }
     </script>
+    <!-- === SIGNATURE BADGE === -->
+    <style>
+        .spark-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4); /* 半透明黑底，適應深淺背景 */
+            backdrop-filter: blur(4px);      /* 磨砂玻璃效果 */
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            z-index: 9999; /* 確保浮在最上層 */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    
+        .spark-badge:hover {
+            background: rgba(255, 255, 255, 0.95);
+            color: #111; /* Hover 時變白底黑字，高對比 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+    
+        .spark-badge span {
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        
+        /* Mobile RWD: 防止在手機遮住重要內容 */
+        @media (max-width: 600px) {
+            .spark-badge {
+                bottom: 10px;
+                right: 10px;
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+    </style>
+    
+    <a href="https://sparktsang.github.io/" target="_blank" class="spark-badge" title="Visit Spark's Website">
+        Built by <span>Spark Tsang</span>
+    </a>
+    <!-- ============================= -->
 </body>
 </html>
