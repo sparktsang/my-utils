@@ -249,6 +249,28 @@
             border: 1px solid #ddd;
             flex-grow: 1;
         }
+        
+        /* Mobile adjustments for the Mermaid Form */
+        @media (max-width: 768px) {
+            .form-grid {
+                /* 手機上改為單欄顯示，自動向下排列 */
+                grid-template-columns: 1fr !important; 
+                gap: 15px;
+            }
+        
+            /* 讓 Group 欄位和 Add 按鈕也適應單欄 */
+            .form-grid > div[style*="grid-column: span 5"] {
+                grid-column: span 1 !important;
+                display: flex;
+                flex-direction: column;
+            }
+        
+            /* 調整 Add 按鈕的寬度 */
+            .form-grid button.primary-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
