@@ -34,6 +34,12 @@ An intuitive, form-based builder for creating complex **Mermaid.js** diagrams wi
   - **Smart ID System:** Auto-generates unique IDs (`N1`, `N2`...) or accepts custom ones.
   - **Visual Styling:** Easily assign shapes (Round, Square, Diamond) and color tags (Red, Green, Purple) to categorize entities (e.g., highlighting "Winners" or "Suspects").
   - **Instant Export:** Generates clean, ready-to-paste Mermaid code for documentation or visualization tools.
+ 
+### 5. BibTeX Cleaner (Zotero to Overleaf)
+Strips bloated bibliography exports down to the "necessary and sufficient" standards required for LaTeX.
+- **The Problem:** Exporting citations from Zotero or Google Scholar often includes massive, redundant fields like multi-paragraph `abstract`s, local `file` paths, `urldate`, and `Google-Books-ID` notes. This clutters your `.bib` file and can even cause Overleaf compilation errors.
+- **The Solution:** Paste your messy BibTeX code. The tool uses a strict whitelist to extract only the essential academic fields (`author`, `title`, `journal`, `year`, `doi`, `volume`, etc.).
+- **Smart URL Logic:** It automatically removes redundant `url` fields if a formal `doi` is already present, ensuring your reference list renders cleanly without duplicate links.
 
 ---
 
