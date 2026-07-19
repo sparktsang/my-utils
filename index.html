@@ -282,6 +282,7 @@
         <button class="nav-btn" onclick="switchTool('toc-generator')">TOC Generator</button>
         <button class="nav-btn" onclick="switchTool('ai-studio-converter')">AI Studio Converter</button>
         <button class="nav-btn" onclick="switchTool('mermaid-generator')">Relationship Mapper</button>
+        <button class="nav-btn" onclick="switchTool('bibtex-cleaner')">BibTeX Cleaner</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -424,6 +425,27 @@
                 <p style="text-align:right;">
                     <a href="https://mermaid.live/" target="_blank" style="color:var(--accent-color); text-decoration:none;">Open Mermaid Live Editor &rarr;</a>
                 </p>
+            </div>
+        </div>
+
+        <!-- TOOL 5: BIBTEX CLEANER -->
+        <div id="bibtex-cleaner" class="tool-section">
+            <div class="card">
+                <h1>BibTeX Cleaner (Zotero to Overleaf)</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Strips bloated Zotero BibTeX exports down to the "necessary and sufficient" fields for LaTeX/Overleaf. Removes abstracts, files, notes, and redundant URLs.
+                </p>
+        
+                <label>Raw BibTeX (Paste from Zotero):</label>
+                <textarea id="bibInput" placeholder="Paste your messy @article{...} here..." style="height: 200px;"></textarea>
+                
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="runBibtexClean()">Clean BibTeX</button>
+                    <button class="copy-btn" onclick="copyOutput('bibOutput')">Copy Result</button>
+                </div>
+        
+                <label>Cleaned BibTeX:</label>
+                <textarea id="bibOutput" class="output-area" style="height: 300px;" readonly></textarea>
             </div>
         </div>
 
@@ -853,6 +875,79 @@
         
             return `${ent.id}${start}${ent.name}${end}:::${styleClass}\n`;
         }
+
+        // ==========================================
+        // TOOL 5 LOGIC: BIBTEX CLEANER
+        // ==========================================
+        function runBibtexClean() {
+            const input = document.getElementById('bibInput').value;
+            if (!input.trim()) return;
+        
+            // Define the whitelist of fields necessary for a standard LaTeX bibliography
+            const allowedFields = [
+                'author', 'title', 'journal', 'booktitle', 'publisher', 
+                'year', 'volume', 'number', 'pages', 'doi', 'isbn', 
+                'editor', 'edition', 'school', 'institution', 'address'
+            ];
+        
+            let result = "";
+        
+            // Split raw text into individual BibTeX entries (matches "@type{")
+            const entries = input.split(/(?=@\w+\s*\{)/);
+        
+            entries.forEach(entry => {
+                if (!entry.trim()) return;
+        
+                const lines = entry.split('\n');
+                let cleanedLines = [];
+                let keepCurrentField = false;
+                
+                // Check if this specific entry has a DOI
+                const hasDoi = /^\s*doi\s*=/im.test(entry);
+        
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i];
+        
+                    // 1. Always keep the first line (e.g., @article{key,)
+                    if (i === 0) {
+                        cleanedLines.push(line);
+                        continue;
+                    }
+        
+                    // 2. Always keep the closing brace
+                    if (line.trim() === '}') {
+                        cleanedLines.push(line);
+                        continue;
+                    }
+        
+                    // 3. Check if this line starts a new field (e.g., "  title = {...},")
+                    let fieldMatch = line.match(/^\s*([a-zA-Z0-9_]+)\s*=/);
+                    if (fieldMatch) {
+                        let fieldName = fieldMatch[1].toLowerCase();
+                        
+                        // Determine if we should keep this field based on whitelist
+                        keepCurrentField = allowedFields.includes(fieldName);
+        
+                        // Special Rule: Keep URL only if there is no DOI
+                        if (fieldName === 'url' && !hasDoi) {
+                            keepCurrentField = true;
+                        }
+                    }
+        
+                    // 4. If the current field is approved, push the line
+                    // (This naturally drops multi-line fields like 'abstract' if they weren't approved)
+                    if (keepCurrentField) {
+                        cleanedLines.push(line);
+                    }
+                }
+        
+                // Join the cleaned lines and add some spacing between entries
+                result += cleanedLines.join('\n') + '\n\n';
+            });
+        
+            document.getElementById('bibOutput').value = result.trim();
+        }
+
     </script>
     <!-- === SIGNATURE BADGE === -->
     <style>
