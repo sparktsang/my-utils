@@ -284,6 +284,7 @@
         <button class="nav-btn" onclick="switchTool('mermaid-generator')">Relationship Mapper</button>
         <button class="nav-btn" onclick="switchTool('bibtex-cleaner')">BibTeX Cleaner</button>
         <button class="nav-btn" onclick="switchTool('md-linebreak-fixer')">MD Line Break Fixer</button>
+        <button class="nav-btn" onclick="switchTool('cjk-spacer')">CJK Spacer + MD</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -468,6 +469,27 @@
         
                 <label>Markdown Ready Text:</label>
                 <textarea id="mdOutput" class="output-area" style="height: 300px;" readonly></textarea>
+            </div>
+        </div>
+        
+        <!-- TOOL 7: CJK SPACING FORMATTER + MD FIXER -->
+        <div id="cjk-spacer" class="tool-section">
+            <div class="card">
+                <h1>CJK Spacing Formatter (+ MD Fixer)</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Automatically adds standard typography spacing between Chinese characters and English/Numbers. Ignores Chinese punctuation. Also automatically applies Markdown line breaks (appends two spaces).
+                </p>
+        
+                <label>Raw Notes (Mixed CJK and English):</label>
+                <textarea id="cjkInput" placeholder="Paste your raw notes here..." style="height: 200px;"></textarea>
+                
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="runCjkSpacer()">Format Spacing</button>
+                    <button class="copy-btn" onclick="copyOutput('cjkOutput')">Copy Result</button>
+                </div>
+        
+                <label>Formatted & MD Ready Text:</label>
+                <textarea id="cjkOutput" class="output-area" style="height: 300px;" readonly></textarea>
             </div>
         </div>
 
@@ -994,6 +1016,48 @@
         
             document.getElementById('mdOutput').value = processedLines.join('\n');
         }
+        
+        // ==========================================
+        // TOOL 7 LOGIC: CJK SPACING FORMATTER + MD
+        // ==========================================
+        function runCjkSpacer() {
+            const input = document.getElementById('cjkInput').value;
+            if (!input) return;
+        
+            // --- STEP 1: Spacing Logic ---
+            let processed = input;
+            
+            // Rule 1: Chinese character followed by English/Number
+            // \u4e00-\u9fa5 covers standard Chinese characters (excludes punctuation)
+            processed = processed.replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, '$1 $2');
+            
+            // Rule 2: English/Number followed by Chinese character
+            processed = processed.replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, '$1 $2');
+            
+            // Rule 3: Add space before English open parenthesis if preceded by English/Number
+            processed = processed.replace(/([a-zA-Z0-9])(\()/g, '$1 $2');
+            
+            // Rule 4: Add space after English close parenthesis if followed by English/Number
+            processed = processed.replace(/(\))([a-zA-Z0-9])/g, '$1 $2');
+        
+            // --- STEP 2: Markdown Line Break Logic (Same as Tool 6) ---
+            const lines = processed.split('\n');
+            const finalLines = lines.map(line => {
+                // Remove existing trailing spaces
+                const trimmedRight = line.replace(/\s+$/, '');
+                
+                // If line has content, add exactly two spaces for Markdown hard break
+                if (trimmedRight.length > 0) {
+                    return trimmedRight + '  ';
+                }
+                
+                // Keep completely empty lines empty
+                return '';
+            });
+        
+            document.getElementById('cjkOutput').value = finalLines.join('\n');
+        }
+        
 
     </script>
     <!-- === SIGNATURE BADGE === -->
