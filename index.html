@@ -283,6 +283,7 @@
         <button class="nav-btn" onclick="switchTool('ai-studio-converter')">AI Studio Converter</button>
         <button class="nav-btn" onclick="switchTool('mermaid-generator')">Relationship Mapper</button>
         <button class="nav-btn" onclick="switchTool('bibtex-cleaner')">BibTeX Cleaner</button>
+        <button class="nav-btn" onclick="switchTool('md-linebreak-fixer')">MD Line Break Fixer</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -446,6 +447,27 @@
         
                 <label>Cleaned BibTeX:</label>
                 <textarea id="bibOutput" class="output-area" style="height: 300px;" readonly></textarea>
+            </div>
+        </div>
+        
+        <!-- TOOL 6: MARKDOWN LINE BREAK FIXER -->
+        <div id="md-linebreak-fixer" class="tool-section">
+            <div class="card">
+                <h1>Markdown Line Break Fixer</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Fixes plain text notes for Markdown rendering (like Jekyll/GitHub Pages) by automatically appending two spaces to the end of non-empty lines, forcing hard line breaks.
+                </p>
+        
+                <label>Plain Text Notes:</label>
+                <textarea id="mdInput" placeholder="Paste your plain text notes here..." style="height: 200px;"></textarea>
+                
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="runMdLineBreakFix()">Add Markdown Line Breaks</button>
+                    <button class="copy-btn" onclick="copyOutput('mdOutput')">Copy Result</button>
+                </div>
+        
+                <label>Markdown Ready Text:</label>
+                <textarea id="mdOutput" class="output-area" style="height: 300px;" readonly></textarea>
             </div>
         </div>
 
@@ -946,6 +968,31 @@
             });
         
             document.getElementById('bibOutput').value = result.trim();
+        }
+        
+        // ==========================================
+        // TOOL 6 LOGIC: MARKDOWN LINE BREAK FIXER
+        // ==========================================
+        function runMdLineBreakFix() {
+            const input = document.getElementById('mdInput').value;
+            if (!input) return;
+        
+            const lines = input.split('\n');
+            
+            const processedLines = lines.map(line => {
+                // Remove existing trailing spaces to avoid accumulating 3+ spaces
+                const trimmedRight = line.replace(/\s+$/, '');
+                
+                // If the line has content, append exactly two spaces
+                if (trimmedRight.length > 0) {
+                    return trimmedRight + '  ';
+                }
+                
+                // If the line is empty (paragraph break), keep it perfectly empty
+                return '';
+            });
+        
+            document.getElementById('mdOutput').value = processedLines.join('\n');
         }
 
     </script>
