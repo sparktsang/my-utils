@@ -46,6 +46,13 @@ Converts standard plain text notes into strictly formatted Markdown by handling 
 - **The Problem:** Standard Markdown (used in Jekyll, GitHub Pages, etc.) ignores single line breaks. If you paste regular text notes, all single line breaks collapse into a massive, unreadable paragraph.
 - **The Solution:** This tool scans your text and automatically cleans up trailing whitespaces, appending exactly two spaces (`  `) to the end of every non-empty line. This forces Markdown renderers to respect your original single line breaks without altering paragraph spacing.
 
+### 7. CJK Spacing Formatter (+ MD Fixer)
+Automatically applies standard modern typography spacing to mixed Chinese/English text.
+- **The Problem:** When taking notes, Chinese characters and English words or numbers are often crammed together without spaces (e.g., `哈佛大學Donald Rubin於1974年`). Modern typography standards dictate that a half-width space should separate them for readability. Doing this manually for 80+ notes is impossible.
+- **The Solution:** This tool automatically injects a single space between Chinese characters and English letters/numbers. 
+- **Smart Punctuation Logic:** It strictly ignores Chinese punctuation marks (e.g., `。`, `（`), so references like `（Mian and Sufi, 2012）` remain untouched. It also properly spaces English parentheses attached to English words `like (this)`.
+- **2-in-1 Tool:** As a bonus, it automatically runs the **Markdown Line Break Fixer** (Tool 6) on the final output, making the text 100% ready for Jekyll/GitHub Pages rendering in a single click.
+
 ---
 
 ## 🚀 Why Build This? (The Philosophy)
