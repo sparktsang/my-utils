@@ -41,6 +41,11 @@ Strips bloated bibliography exports down to the "necessary and sufficient" stand
 - **The Solution:** Paste your messy BibTeX code. The tool uses a strict whitelist to extract only the essential academic fields (`author`, `title`, `journal`, `year`, `doi`, `volume`, etc.).
 - **Smart URL Logic:** It automatically removes redundant `url` fields if a formal `doi` is already present, ensuring your reference list renders cleanly without duplicate links.
 
+### 6. Markdown Line Break Fixer
+Converts standard plain text notes into strictly formatted Markdown by handling "hard breaks".
+- **The Problem:** Standard Markdown (used in Jekyll, GitHub Pages, etc.) ignores single line breaks. If you paste regular text notes, all single line breaks collapse into a massive, unreadable paragraph.
+- **The Solution:** This tool scans your text and automatically cleans up trailing whitespaces, appending exactly two spaces (`  `) to the end of every non-empty line. This forces Markdown renderers to respect your original single line breaks without altering paragraph spacing.
+
 ---
 
 ## 🚀 Why Build This? (The Philosophy)
