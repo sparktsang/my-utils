@@ -53,6 +53,12 @@ Automatically applies standard modern typography spacing to mixed Chinese/Englis
 - **Smart Punctuation Logic:** It strictly ignores Chinese punctuation marks (e.g., `。`, `（`), so references like `（Mian and Sufi, 2012）` remain untouched. It also properly spaces English parentheses attached to English words `like (this)`.
 - **2-in-1 Tool:** As a bonus, it automatically runs the **Markdown Line Break Fixer** (Tool 6) on the final output, making the text 100% ready for Jekyll/GitHub Pages rendering in a single click.
 
+### 8. Image Watermark Generator
+A client-side image processing tool to instantly stamp text watermarks onto photos.
+- **The Problem:** Adding a simple copyright text to an image usually requires opening Photoshop or using sketchy online tools that upload your private photos to external servers. Manually dragging text to align perfectly in the corners is tedious.
+- **The Solution:** A lightweight HTML5 Canvas tool. Select an image, type your text, choose a font (includes standard fonts and *Abhaya Libre*), and pick a corner. 
+- **Smart Scaling & Rendering:** The tool automatically calculates the optimal font size relative to the image resolution (e.g., `1.3x` scale) and applies a subtle, dynamic drop-shadow so white text remains perfectly legible even against bright backgrounds like clouds or snow. Everything happens instantly in your browser.
+
 ---
 
 ## 🚀 Why Build This? (The Philosophy)
