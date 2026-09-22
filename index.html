@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Utility Toolkit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #f4f4f9;
@@ -285,6 +286,7 @@
         <button class="nav-btn" onclick="switchTool('bibtex-cleaner')">BibTeX Cleaner</button>
         <button class="nav-btn" onclick="switchTool('md-linebreak-fixer')">MD Line Break Fixer</button>
         <button class="nav-btn" onclick="switchTool('cjk-spacer')">CJK Spacer + MD</button>
+        <button class="nav-btn" onclick="switchTool('watermark-app')">Image Watermark</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
@@ -490,6 +492,73 @@
         
                 <label>Formatted & MD Ready Text:</label>
                 <textarea id="cjkOutput" class="output-area" style="height: 300px;" readonly></textarea>
+            </div>
+        </div>
+        
+        <!-- TOOL 8: IMAGE WATERMARK GENERATOR -->
+        <div id="watermark-app" class="tool-section">
+            <div class="card">
+                <h1>Image Watermark Generator</h1>
+                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
+                    Add a text watermark to your images entirely in your browser. No server uploads.
+                </p>
+        
+                <!-- Controls -->
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="grid-column: span 2;">
+                        <label>1. Upload Image:</label>
+                        <input type="file" id="wmImageUpload" accept="image/png, image/jpeg, image/webp" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+        
+                    <div style="grid-column: span 2;">
+                        <label>2. Watermark Text:</label>
+                        <input type="text" id="wmText" value="sparktsang.github.io" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                    </div>
+                
+                    <div>
+                        <label>Font Family:</label>
+                        <select id="wmFont" style="width: 100%;">
+                            <option value="'Abhaya Libre', serif" selected>Abhaya Libre</option>
+                            <option value="Arial">Arial</option>
+                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                            <option value="'Courier New', Courier, monospace">Courier New</option>
+                        </select>
+                    </div>
+        
+                    <div>
+                        <label>Color:</label>
+                        <input type="color" id="wmColor" value="#ffffff" style="width: 100%; height: 35px; padding: 0; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+        
+                    <div>
+                        <label>Position:</label>
+                        <select id="wmPosition" style="width: 100%;">
+                            <option value="bottom-right">Bottom-Right</option>
+                            <option value="bottom-left" selected>Bottom-Left</option>
+                            <option value="top-right">Top-Right</option>
+                            <option value="top-left">Top-Left</option>
+                        </select>
+                    </div>
+        
+                    <div style="grid-column: span 2;">
+                        <label>Settings (Font Size pt | Margin X | Margin Y):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="wmSize" value="22" step="1" title="Absolute Font Size (pt)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <input type="number" id="wmMarginX" value="20" step="1" title="Margin X (Left/Right px)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <input type="number" id="wmMarginY" value="10" step="1" title="Margin Y (Top/Bottom px)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="action-bar">
+                    <button class="primary-btn" onclick="downloadWatermark()">Download Image</button>
+                </div>
+        
+                <label>Preview:</label>
+                <div style="border: 1px dashed #ccc; padding: 10px; background: #f9f9f9; text-align: center; overflow: hidden; border-radius: 4px;">
+                    <canvas id="wmCanvas" style="max-width: 100%; height: auto; display: none;"></canvas>
+                    <p id="wmPlaceholder" style="color: #999; margin: 50px 0;">Upload an image to see preview.</p>
+                </div>
             </div>
         </div>
 
@@ -1056,6 +1125,109 @@
             });
         
             document.getElementById('cjkOutput').value = finalLines.join('\n');
+        }
+        
+        // ==========================================
+        // TOOL 8 LOGIC: IMAGE WATERMARK GENERATOR
+        // ==========================================
+        let wmImageObj = null;
+        
+        // Event Listeners to auto-update preview when settings change
+        document.getElementById('wmImageUpload').addEventListener('change', handleImageUpload);
+        const wmInputs = ['wmText', 'wmFont', 'wmColor', 'wmPosition', 'wmSize', 'wmMarginX', 'wmMarginY'];
+        wmInputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', drawWatermark);
+            document.getElementById(id).addEventListener('change', drawWatermark);
+        });
+        
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+        
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    wmImageObj = img;
+                    document.getElementById('wmPlaceholder').style.display = 'none';
+                    document.getElementById('wmCanvas').style.display = 'inline-block';
+                    
+                    // Wait slightly for Abhaya Libre font to be ready if it's the first time
+                    document.fonts.ready.then(() => {
+                        drawWatermark();
+                    });
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function drawWatermark() {
+            if (!wmImageObj) return;
+        
+            const canvas = document.getElementById('wmCanvas');
+            const ctx = canvas.getContext('2d');
+        
+            // Set canvas dimensions to match original image
+            canvas.width = wmImageObj.width;
+            canvas.height = wmImageObj.height;
+        
+            // Draw original image
+            ctx.drawImage(wmImageObj, 0, 0);
+        
+            // Get Settings
+                const text = document.getElementById('wmText').value;
+                const font = document.getElementById('wmFont').value;
+                const color = document.getElementById('wmColor').value;
+                const pos = document.getElementById('wmPosition').value;
+                const fontSize = parseFloat(document.getElementById('wmSize').value) || 8;
+                const marginX = parseInt(document.getElementById('wmMarginX').value) || 0;
+                const marginY = parseInt(document.getElementById('wmMarginY').value) || 0;
+            
+                // Configure text style using absolute point size (pt)
+                ctx.font = `bold ${fontSize}pt ${font}`;
+                ctx.fillStyle = color;
+                
+                // Add shadow (scaled to font size for consistency)
+                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+                ctx.shadowBlur = fontSize * 0.3;
+                ctx.shadowOffsetX = fontSize * 0.1;
+                ctx.shadowOffsetY = fontSize * 0.1;
+            
+                // Calculate Coordinates based on Position
+                let x, y;
+            
+                if (pos.includes('right')) {
+                    ctx.textAlign = 'right';
+                    x = canvas.width - marginX;
+                } else {
+                    ctx.textAlign = 'left';
+                    x = marginX;
+                }
+            
+                if (pos.includes('bottom')) {
+                    ctx.textBaseline = 'bottom';
+                    y = canvas.height - marginY;
+                } else {
+                    ctx.textBaseline = 'top';
+                    y = marginY;
+                }
+        
+            // Draw Text
+            ctx.fillText(text, x, y);
+        }
+        
+        function downloadWatermark() {
+            if (!wmImageObj) {
+                alert("Please upload an image first.");
+                return;
+            }
+            
+            const canvas = document.getElementById('wmCanvas');
+            const link = document.createElement('a');
+            link.download = 'watermarked-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
         
 
