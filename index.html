@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Utility Toolkit</title>
-    <link href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f4f9;
-            --sidebar-bg: #1a1a1a;
-            --text-color: #333;
-            --accent-color: #2563eb;
-            --card-bg: #ffffff;
-            --border-color: #e5e7eb;
+            --bg-color: #121212;
+            --sidebar-bg: #000000;
+            --text-color: #e5e7eb;
+            --accent-color: #3b82f6;
+            --card-bg: #1e1e1e;
+            --border-color: #374151;
+            color-scheme: dark;
         }
 
         body {
@@ -26,20 +26,28 @@
             overflow: hidden;
         }
         
-        /* GitHub Corner Link */
+        /* GitHub Icon Styling */
         .github-link {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            color: var(--text-muted);
-            transition: color 0.3s;
+            top: 25px;
+            right: 25px;
+            color: #9ca3af; /* 預設淡灰色，唔會太搶眼 */
+            transition: color 0.2s ease;
         }
-        .github-link:hover { color: var(--text-main); }
-        .github-link svg { width: 30px; height: 30px; fill: currentColor; }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        
+        .github-link:hover {
+            color: var(--accent-color, #2563eb); /* 滑鼠游標移過去會變藍色 */
+        }
+        
+        .github-link svg {
+            width: 28px;
+            height: 28px;
+            fill: currentColor;
+        }
+        
+        /* 防撞設計：確保標題唔會掂到個 Icon */
+        h1 {
+            padding-right: 40px;
         }
 
         /* Sidebar Navigation */
@@ -90,6 +98,7 @@
             flex-grow: 1;
             padding: 40px;
             overflow-y: auto;
+            position: relative;
         }
 
         .tool-section {
@@ -121,6 +130,11 @@
             color: #555;
         }
 
+        textarea, input, select {
+            background-color: #252525;
+            color: #e5e7eb;
+            color-scheme: dark;
+        }
         textarea {
             width: 100%;
             height: 150px;
@@ -164,7 +178,7 @@
         button.copy-btn:hover { background-color: #374151; }
 
         .output-area {
-            background-color: #f9fafb;
+            background-color: #252525;
             border: 1px solid var(--border-color);
         }
 
@@ -189,7 +203,7 @@
             padding: 40px;
             text-align: center;
             color: #888;
-            background-color: #fafafa;
+            background-color: #252525;
             transition: all 0.2s ease;
             cursor: pointer;
             margin-bottom: 20px;
@@ -197,7 +211,7 @@
         
         .drop-zone:hover, .drop-zone.dragover {
             border-color: var(--accent-color);
-            background-color: #eff6ff;
+            background-color: #1e3a8a;
             color: var(--accent-color);
         }
         
@@ -220,14 +234,14 @@
             gap: 10px;
             margin-bottom: 20px;
             padding: 10px;
-            background: #f9fafb;
+            background: #252525;
             border: 1px solid #e5e7eb;
             border-radius: 6px;
             min-height: 50px;
         }
         
         .entity-tag {
-            background: #fff;
+            background: #333;
             border: 1px solid #ccc;
             padding: 5px 10px;
             border-radius: 15px;
@@ -254,7 +268,7 @@
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
-            background: #fff;
+            background: #252525;
             padding: 10px;
             border: 1px solid #eee;
             border-radius: 4px;
@@ -292,10 +306,6 @@
 </head>
 <body>
     
-    <a href="https://github.com/sparktsang/my-utils" target="_blank" class="github-link" title="View on GitHub">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-    </a>
-
     <!-- Sidebar Navigation -->
     <div id="sidebar">
         <h2>Toolbox</h2>
@@ -306,12 +316,16 @@
         <button class="nav-btn" onclick="switchTool('bibtex-cleaner')">BibTeX Cleaner</button>
         <button class="nav-btn" onclick="switchTool('md-linebreak-fixer')">MD Line Break Fixer</button>
         <button class="nav-btn" onclick="switchTool('cjk-spacer')">CJK Spacer + MD</button>
-        <button class="nav-btn" onclick="switchTool('watermark-app')">Image Watermark</button>
         <!-- ADD NEW BUTTONS HERE FOR FUTURE TOOLS -->
     </div>
 
     <!-- Main Content -->
     <div id="main">
+        <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" target="_blank" class="github-link" title="View source on GitHub">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+        </a>
 
         <!-- TOOL 1: URL DECODER -->
         <div id="url-decoder" class="tool-section active">
@@ -512,73 +526,6 @@
         
                 <label>Formatted & MD Ready Text:</label>
                 <textarea id="cjkOutput" class="output-area" style="height: 300px;" readonly></textarea>
-            </div>
-        </div>
-        
-        <!-- TOOL 8: IMAGE WATERMARK GENERATOR -->
-        <div id="watermark-app" class="tool-section">
-            <div class="card">
-                <h1>Image Watermark Generator</h1>
-                <p style="color:#666; font-size:0.9rem; margin-bottom: 20px;">
-                    Add a text watermark to your images entirely in your browser. No server uploads.
-                </p>
-        
-                <!-- Controls -->
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div style="grid-column: span 2;">
-                        <label>1. Upload Image:</label>
-                        <input type="file" id="wmImageUpload" accept="image/png, image/jpeg, image/webp" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                    </div>
-        
-                    <div style="grid-column: span 2;">
-                        <label>2. Watermark Text:</label>
-                        <input type="text" id="wmText" value="sparktsang.github.io" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
-                    </div>
-                
-                    <div>
-                        <label>Font Family:</label>
-                        <select id="wmFont" style="width: 100%;">
-                            <option value="'Abhaya Libre', serif" selected>Abhaya Libre</option>
-                            <option value="Arial">Arial</option>
-                            <option value="'Times New Roman', Times, serif">Times New Roman</option>
-                            <option value="'Courier New', Courier, monospace">Courier New</option>
-                        </select>
-                    </div>
-        
-                    <div>
-                        <label>Color:</label>
-                        <input type="color" id="wmColor" value="#ffffff" style="width: 100%; height: 35px; padding: 0; border: 1px solid #ccc; border-radius: 4px;">
-                    </div>
-        
-                    <div>
-                        <label>Position:</label>
-                        <select id="wmPosition" style="width: 100%;">
-                            <option value="bottom-right">Bottom-Right</option>
-                            <option value="bottom-left" selected>Bottom-Left</option>
-                            <option value="top-right">Top-Right</option>
-                            <option value="top-left">Top-Left</option>
-                        </select>
-                    </div>
-        
-                    <div style="grid-column: span 2;">
-                        <label>Settings (Font Size pt | Margin X | Margin Y):</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" id="wmSize" value="18" step="1" title="Absolute Font Size (pt)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                            <input type="number" id="wmMarginX" value="20" step="1" title="Margin X (Left/Right px)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                            <input type="number" id="wmMarginY" value="6" step="1" title="Margin Y (Top/Bottom px)" style="width: 33%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                    </div>
-                </div>
-        
-                <div class="action-bar">
-                    <button class="primary-btn" onclick="downloadWatermark()">Download Image</button>
-                </div>
-        
-                <label>Preview:</label>
-                <div style="border: 1px dashed #ccc; padding: 10px; background: #f9f9f9; text-align: center; overflow: hidden; border-radius: 4px;">
-                    <canvas id="wmCanvas" style="max-width: 100%; height: auto; display: none;"></canvas>
-                    <p id="wmPlaceholder" style="color: #999; margin: 50px 0;">Upload an image to see preview.</p>
-                </div>
             </div>
         </div>
 
@@ -840,12 +787,12 @@
         
             entities.forEach((ent, index) => {
                 // Visual indicator of color
-                let borderCol = '#ccc';
-                let bgCol = '#fff';
-                if (ent.color === 'red') { borderCol = '#d00'; bgCol='#fee'; }
-                if (ent.color === 'green') { borderCol = '#080'; bgCol='#efe'; }
-                if (ent.color === 'purple') { borderCol = '#808'; bgCol='#fef'; }
-                if (ent.color === 'orange') { borderCol = '#d80'; bgCol='#ff9'; }
+                let borderCol = '#555';
+                let bgCol = '#333';
+                if (ent.color === 'red') { borderCol = '#ff6b6b'; bgCol='#4a1a1a'; }
+                if (ent.color === 'green') { borderCol = '#51cf66'; bgCol='#1a3a22'; }
+                if (ent.color === 'purple') { borderCol = '#cc5de8'; bgCol='#3a1a4a'; }
+                if (ent.color === 'orange') { borderCol = '#fcc419'; bgCol='#4a351a'; }
         
                 const tag = document.createElement('div');
                 tag.className = 'entity-tag';
@@ -1146,110 +1093,6 @@
         
             document.getElementById('cjkOutput').value = finalLines.join('\n');
         }
-        
-        // ==========================================
-        // TOOL 8 LOGIC: IMAGE WATERMARK GENERATOR
-        // ==========================================
-        let wmImageObj = null;
-        
-        // Event Listeners to auto-update preview when settings change
-        document.getElementById('wmImageUpload').addEventListener('change', handleImageUpload);
-        const wmInputs = ['wmText', 'wmFont', 'wmColor', 'wmPosition', 'wmSize', 'wmMarginX', 'wmMarginY'];
-        wmInputs.forEach(id => {
-            document.getElementById(id).addEventListener('input', drawWatermark);
-            document.getElementById(id).addEventListener('change', drawWatermark);
-        });
-        
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-        
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    wmImageObj = img;
-                    document.getElementById('wmPlaceholder').style.display = 'none';
-                    document.getElementById('wmCanvas').style.display = 'inline-block';
-                    
-                    // Wait slightly for Abhaya Libre font to be ready if it's the first time
-                    document.fonts.ready.then(() => {
-                        drawWatermark();
-                    });
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        function drawWatermark() {
-            if (!wmImageObj) return;
-        
-            const canvas = document.getElementById('wmCanvas');
-            const ctx = canvas.getContext('2d');
-        
-            // Set canvas dimensions to match original image
-            canvas.width = wmImageObj.width;
-            canvas.height = wmImageObj.height;
-        
-            // Draw original image
-            ctx.drawImage(wmImageObj, 0, 0);
-        
-            // Get Settings
-                const text = document.getElementById('wmText').value;
-                const font = document.getElementById('wmFont').value;
-                const color = document.getElementById('wmColor').value;
-                const pos = document.getElementById('wmPosition').value;
-                const fontSize = parseFloat(document.getElementById('wmSize').value) || 8;
-                const marginX = parseInt(document.getElementById('wmMarginX').value) || 0;
-                const marginY = parseInt(document.getElementById('wmMarginY').value) || 0;
-            
-                // Configure text style using absolute point size (pt)
-                ctx.font = `bold ${fontSize}pt ${font}`;
-                ctx.fillStyle = color;
-                
-                // Add shadow (scaled to font size for consistency)
-                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-                ctx.shadowBlur = fontSize * 0.3;
-                ctx.shadowOffsetX = fontSize * 0.1;
-                ctx.shadowOffsetY = fontSize * 0.1;
-            
-                // Calculate Coordinates based on Position
-                let x, y;
-            
-                if (pos.includes('right')) {
-                    ctx.textAlign = 'right';
-                    x = canvas.width - marginX;
-                } else {
-                    ctx.textAlign = 'left';
-                    x = marginX;
-                }
-            
-                if (pos.includes('bottom')) {
-                    ctx.textBaseline = 'bottom';
-                    y = canvas.height - marginY;
-                } else {
-                    ctx.textBaseline = 'top';
-                    y = marginY;
-                }
-        
-            // Draw Text
-            ctx.fillText(text, x, y);
-        }
-        
-        function downloadWatermark() {
-            if (!wmImageObj) {
-                alert("Please upload an image first.");
-                return;
-            }
-            
-            const canvas = document.getElementById('wmCanvas');
-            const link = document.createElement('a');
-            link.download = 'watermarked-image.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
-        
 
     </script>
     <!-- === SIGNATURE BADGE === -->
